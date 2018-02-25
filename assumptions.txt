@@ -1,0 +1,4 @@
+1. No drag
+2. No induced velocity
+3. No spanwise variation (prismatic wing)
+4. Assuming that Rj = R

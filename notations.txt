@@ -1,0 +1,65 @@
+
+###################
+Geometry and body properties
+###################
+
+m - mass of boomerang
+i_xi, i_eta, i_zeta  - moment of inertia in blade axis
+j_xi_eta, j_xi_zeta, j_eta_zeta - cross moment of inertia
+
+beta_vec - coning angle
+theta_pitch_vec - pitching angle
+gamma - folding angle (angle between two blades)
+Lamda_vec - Lamda_1, Lamda_2 - sweep angle
+xi_bar,eta_bar - cg in xi,eta,zeta axis
+eta -  ac of spanwise from ac of blade (running variable)
+
+R - reference radius
+S - surface area
+length - l
+
+c - chord (constant now, later array )
+x_ac - position of aerodynamic center
+r_j_ac_vec  - radius vector of ac (x_ac,0,0)
+pos_vec - position vector of ac in blade frame
+
+###################
+Initial Conditions
+###################
+
+p0,q0,r0 - (omega_0_vec) initial angular velocity
+u_x0, u_y0, u_z0 - (u_0_vec) intial linear velocity
+
+###################
+Kinematic properties
+###################
+
+u_x,u_y,u_z - (u_vec) initial linear velocity
+p,q,r - (omega_vec) intial angular velocity
+Omega - initial spin rate = psid
+alpha - angle of attack
+w_xi, w_eta, w_zeta - ( w_j_vec) - relative air velocity of blade in (xi,eta,zeta) frame
+v_x_j, v_y_j, v_z_j - (v_j_vec) velocity of the blade element
+
+
+###################
+Coordinate System
+###################
+
+phi, theta, psi - euler angles of body frame
+phi_d, theta_d, psi_d - change of euler angles
+Phi, Theta, Psi - euler angles of non spinning frame
+Phi0, Theta0, Psi0 - initial euler angles of non spinning frame
+Phi_d, Theta_d, Psi_d - euler angles of non spinning frame
+x,y,z - body frame
+X0, Y0, Z0 - body frame in initial state
+T0 - transformation matrix from initial (X0,Y0,Z0) to body (x,y,z)
+Tn - transformation matrix from body (x,y,z) to nonspinning frame (X,Y,Z)
+X,Y,Z - nonspinning or nonslipping frame
+lamda - azimuth angle of body frame wrp nonspinning frame
+
+###################
+Others
+###################
+
+rho - density
