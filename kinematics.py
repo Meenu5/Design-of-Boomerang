@@ -16,12 +16,20 @@ def doEulerRatesBody(p,q,r,phi, theta, psi) :
     return phi_d, theta_d, psi_d
 
 
+
+# f1 - returns segments*3 - position vectors of ac of sections
+def doPositionVector(Tj,length,x_ac) :
+    r_j_vec = []
+    segments = 100
+    for i in range(segments) :
+        eta = (i+0.5)*length/segments
+        pos_vec = np.array([0,eta,0])
+        r_j_vec.append(transpose(np.array([x_ac,0,0])) + np.matmul(inv(Tj),transpose(pos_vec)))
+    return np.array(r_j_vec)
+
 # f6 - Relative air velocity of blade in blade frame
 def doRelativeAirVelBlade(v_j_vec, Tj) :
-    w_vec = []
-    for i in v_j_vec :
-        w_vec.append(np.matmul(-Tj,i))
-    return np.array(w_vec)
+    return transpose(np.matmul(-Tj,transpose(v_j_vec)))
 
 # f5 - Velocity of blade in body frame
 def doVelBlade(u_vec, omega_vec, r_j_ac) :

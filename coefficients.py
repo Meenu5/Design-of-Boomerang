@@ -14,11 +14,21 @@ def doClCd(alpha) :
     num_Cd = Cd.shape
 
     for i in range(num_Cl[0]) :
+
+        if abs(alpha_Cl[i]-alpha) < 10**-4 :
+            Cl_ans = Cl[i]
+            break
+
         if alpha_Cl[i] > alpha :
             Cl_ans = (Cl[i]-Cl[i-1]) / (alpha_Cl[i]-alpha_Cl[i-1]) * (alpha-alpha_Cl[i-1]) + Cl[i-1]
             break
 
     for i in range(num_Cd[0]) :
+
+        if abs(alpha_Cd[i]-alpha) < 10**-4 :
+            Cd_ans = Cd[i]
+            break
+
         if alpha_Cd[i] > alpha :
             Cd_ans = (Cd[i]-Cd[i-1]) / (alpha_Cd[i]-alpha_Cd[i-1]) * (alpha-alpha_Cd[i-1]) + Cd[i-1]
             break
@@ -30,20 +40,23 @@ def doCm(alpha) :
     num_Cm = Cm.shape
 
     for i in range(num_Cm[0]) :
+
+        if abs(alpha_Cm[i]-alpha) < 10**-4 :
+            Cm_ans = Cm[i]
+            break
+
         if alpha_Cm[i] > alpha :
             Cm_ans = (Cm[i]-Cm[i-1]) / (alpha_Cm[i]-alpha_Cm[i-1]) * (alpha-alpha_Cm[i-1]) + Cm[i-1]
             break
 
     return Cm_ans
 
-# bno - blade number
-###### TODO - Please to test #####
 # f11
 def doCx_A(w_vec, c, R, S, Omega, alpha, Lamda, theta_pitch, beta,  length, segments ) :
     Cx_A = 0
     for i in range(segments) :
         w = np.linalg.norm(w_vec[i])
-        c1 = (w**2)*c*R/ (((R*Omega)**2) * S)
+        c1 = (w**2)*c*R / (((R*Omega)**2) * S)
         Cl, Cd = doClCd(alpha[i])
         c2 = -Cl * sin(alpha[i]) * sin(Lamda)  + (theta_pitch *sin(Lamda) - beta*cos(Lamda)) * (Cl*cos(alpha[i]))
         f1 = c1 * c2 / R
@@ -75,7 +88,7 @@ def doCz_A(w_vec, c, R, S, Omega, alpha, Lamda, theta_pitch, beta,  length, segm
 
     return Cz_A
 # f8
-def doCm_x_A(w_vec, c, R, S, Omega, alpha, Lamda, theta_pitch, beta,  length, segments) :
+def doCm_x_A(w_vec, c, R, S, Omega, alpha, Lamda, theta_pitch, beta, length, segments) :
     Cm_x_A = 0
     for i in range(segments) :
         w = np.linalg.norm(w_vec[i])
@@ -87,9 +100,9 @@ def doCm_x_A(w_vec, c, R, S, Omega, alpha, Lamda, theta_pitch, beta,  length, se
         f1 = c1 * c2 / R
         Cm_x_A += f1*length/segments
 
-        return Cm_x_A
+    return Cm_x_A
 # f9
-def doCm_y_A(w_vec, c, R, S, Omega, alpha, Lamda, theta_pitch, beta,  length, segments,x_ac) :
+def doCm_y_A(w_vec, c, R, S, Omega, alpha, Lamda, theta_pitch, beta,  length, segments, x_ac) :
     integral_term = 0
 
     for i in range(segments) :
@@ -116,7 +129,7 @@ def doCm_z_A(w_vec, c, R, S, Omega, alpha, Lamda, theta_pitch, beta,  length, se
         Cm = doCm(alpha[i])
         eta = (i+0.5)*length / segments
 
-        c2 = -theta_pitch*Cl*sin(alpha[i])*eta/ R - (-Cl*cos(alpha[i]*eta / R) + (c/R)*Cm*cos(Lamda)
+        c2 = -theta_pitch*Cl*sin(alpha[i])*eta/ R - (-Cl*cos(alpha[i])*eta / R) + (c/R)*Cm*cos(Lamda)
         f1 = c1 * c2 / R
         integral_term += f1*length/segments
 

@@ -20,7 +20,7 @@ length - l
 
 c - chord (constant now, later array )
 x_ac - position of aerodynamic center
-r_j_ac_vec  - radius vector of ac (x_ac,0,0)
+r_j_vec  - radius vector of ac (x_ac,0,0)
 pos_vec - position vector of ac in blade frame
 
 ###################
@@ -34,13 +34,15 @@ u_x0, u_y0, u_z0 - (u_0_vec) intial linear velocity
 Kinematic properties
 ###################
 
-u_x,u_y,u_z - (u_vec) initial linear velocity
+u_x,u_y,u_z - (u_vec)  linear velocity
 p,q,r - (omega_vec) intial angular velocity
 Omega - initial spin rate = psid
 alpha - angle of attack
 w_xi, w_eta, w_zeta - ( w_j_vec) - relative air velocity of blade in (xi,eta,zeta) frame
 v_x_j, v_y_j, v_z_j - (v_j_vec) velocity of the blade element
-
+u_xd, u_yd, u_zd - u_vecd - change in linear velocity
+trajectory_quantity  - stores how quantity varies over time
+delta_t - time step
 
 ###################
 Coordinate System
