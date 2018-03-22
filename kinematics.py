@@ -5,7 +5,7 @@ tan = np.tan
 cos = np.cos
 sin = np.sin
 pi = np.pi
-taninv = np.arctan2 # first arg/ second arg 's inverse'
+taninv = np.arctan # first arg/ second arg 's inverse'
 transpose = np.transpose
 
 # change in euler angles of body frame
@@ -18,9 +18,8 @@ def doEulerRatesBody(p,q,r,phi, theta, psi) :
 
 
 # f1 - returns segments*3 - position vectors of ac of sections
-def doPositionVector(Tj,length,x_ac) :
+def doPositionVector(Tj,length,x_ac,segments) :
     r_j_vec = []
-    segments = 100
     for i in range(segments) :
         eta = (i+0.5)*length/segments
         pos_vec = np.array([0,eta,0])
@@ -29,7 +28,7 @@ def doPositionVector(Tj,length,x_ac) :
 
 # f6 - Relative air velocity of blade in blade frame
 def doRelativeAirVelBlade(v_j_vec, Tj) :
-    return transpose(np.matmul(-Tj,transpose(v_j_vec)))
+    return transpose(np.matmul(Tj,transpose(-v_j_vec-[0,0,-4.648])))
 
 # f5 - Velocity of blade in body frame
 def doVelBlade(u_vec, omega_vec, r_j_ac) :
@@ -40,4 +39,23 @@ def doVelBlade(u_vec, omega_vec, r_j_ac) :
 
 # f7 - Calculation of alpha
 def doAlpha(w_vec) :
-    return [taninv(i[2],i[0]) for i in w_vec ]
+    alpha_vec = []
+    k_vec = []
+    for i in w_vec :
+        if i[0] < 0 :
+            k_vec += [1]
+        else :
+            k_vec += [-1]
+
+    for i in w_vec :
+        if i[2]>=0 and i[0]>=0 :
+            alpha = pi - taninv(abs(i[2]/i[0]))
+        elif i[2]<=0 and i[0]>=0 :
+            alpha = taninv(abs(i[2]/i[0])) - pi
+        elif i[2]<=0 and i[0]<=0 :
+            alpha = -taninv(abs(i[2]/i[0]))
+        else :
+            alpha = taninv(abs(i[2]/i[0]))
+        alpha_vec.append(alpha)
+    return list(alpha_vec),k_vec
+
