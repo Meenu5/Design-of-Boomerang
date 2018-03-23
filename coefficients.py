@@ -13,7 +13,6 @@ def doClCd(alpha) :
     num_Cl = Cl.shape
     num_Cd = Cd.shape
 
-    Cl_anss = 4.43*sin(alpha)*cos(alpha)
     for i in range(num_Cl[0]) :
 
         if (abs(alpha_Cl[i]-alpha) < 10**-2) :
@@ -34,7 +33,7 @@ def doClCd(alpha) :
             Cd_ans = (Cd[i]-Cd[i-1]) / (alpha_Cd[i]-alpha_Cd[i-1]) * (alpha-alpha_Cd[i-1]) + Cd[i-1]
             break
 
-    return Cl_anss, Cd_ans
+    return 0, Cd_ans
 
 def doCm(alpha) :
     Cm, alpha_Cm = aerocoefficients.doLoadMomentCoefficients()

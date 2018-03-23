@@ -93,7 +93,7 @@ trajectory_Phi_Theta_Psi.append(copy.copy(np.array([Phi, Theta, Psi])))
 
 a = time.time()
 steps = 0
-while steps <= 5 :
+while steps <= 1 :
     ## Changes over time ###
 
     # kinematics
@@ -128,11 +128,11 @@ while steps <= 5 :
     print("Cz_A",Cz_A) ##
 
     Cx_G = coefficients.doCx_G(phi, theta, psi, Phi0, Theta0, Psi0)
-    print(Cx_G)
+    print("Cx_G",Cx_G)
     Cy_G = coefficients.doCy_G(phi, theta, psi, Phi0, Theta0, Psi0)
-    print(Cy_G)
+    print("Cy_G",Cy_G)
     Cz_G = coefficients.doCz_G(phi, theta, psi, Phi0, Theta0, Psi0)
-    print(Cz_G)
+    print("Cz_G",Cz_G)
 
     # Moment coefficients
     Cm_x_A = coefficients.doCm_x_A(w_vec_1, c, R, S, Omega, alpha_vec_1, Lamda_1, theta_1, beta_1,  length_1, segments, k_vec_1)
