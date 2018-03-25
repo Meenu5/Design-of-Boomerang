@@ -20,7 +20,7 @@ Cm_array = []
     
 Cl,Cd = coefficients.doClCd(0.20944)
 
-print(Cl,'reoblern')
+print(Cl)
 plt.plot(alpha_array,Cm_array)
 plt.xlabel("Angle of attack in radians")
 plt.ylabel("Moment Coefficient Cm")

@@ -7,6 +7,7 @@ import copy
 import coefficients
 import kinematics
 import transformations
+from scipy.integrate import RK45
 
 tan = np.tan
 cos = np.cos
@@ -41,9 +42,11 @@ theta_pitch_vec = np.array([theta_1, theta_2]) # theta_pitch of blades
 Lamda_vec = np.array([Lamda_1,Lamda_2]) # Lamda of blades
 beta_vec = np.array([0.,0.]) # beta of blades
 
-delta_t = .01 # time step
-total_time = 0.01
+delta_t = .1 # time step
+total_time = 5
 total_steps = total_time/delta_t
+curr_time = 0
+
 # Initial Conditions
 u_vec = np.array([10.,0.,0.]) # initialize u_vec
 omega_vec = np.array([0.,0.,1.]) # initialize omega_vec
@@ -85,7 +88,7 @@ for i in range(3) :
         if J[i][j] < 10**-5 :
             J[i][j] = 0
 
-print(J)
+# print(J)
 # initial velocity
 trajectory_u_vec.append(copy.copy(u_vec))
 trajectory_omega_vec.append(copy.copy(omega_vec))
@@ -182,35 +185,85 @@ while steps <= total_steps :
     lhs = np.array([lhs1, lhs2, lhs3])
     rhs = np.array([rhs1, rhs2, rhs3])
     omega_vec_d = np.linalg.solve(lhs,rhs)
-    # print("Angular velocity", omega_vec)
+
+    # Linear Acceleration Calculation
+    c1 = 0.5*rho*((R*Omega)**2)*S*Cx_A / m- g*Cx_G
+    c2 = 0.5*rho*((R*Omega)**2)*S*Cy_A / m- g*Cy_G
+    c3 = 0.5*rho*((R*Omega)**2)*S*Cz_A / m- g*Cz_G
+    c4 = 0.5*rho*((R*Omega)**2)*R*S*Cm_x_A 
+    c5 = 0.5*rho*((R*Omega)**2)*R*S*Cm_y_A     
+    c6 = 0.5*rho*((R*Omega)**2)*R*S*Cm_z_A
+    
+    # rk45
+    def funvel(t,x) :
+        global c1,c2,c3,c4,c5,c6,J
+        x0d  = c1 - x[4]*x[2] + x[5]*x[1]
+        x1d  = c2 - x[5]*x[0] + x[3]*x[2]
+        x2d  = c3 - x[3]*x[1] + x[4]*x[0]
+
+        x3d  = (-J[2][2]*x[3]*x[5]-J[0][1]*x[3]*x[5]-c5)/J[0][1]
+        x4d  = (J[2][2]*x[4]*x[5]+J[0][1]*x[3]*x[5]-c4)/J[0][1]
+        x5d  = (c6-J[0][1]*x[4]*x[4]-J[0][1]*x[3]*x[3])/J[2][2]
+
+        return np.array([x0d,x1d,x2d,x3d,x4d,x5d])
+    
+    obj1 = RK45(funvel,curr_time,np.array([u_vec[0],u_vec[1],u_vec[2],omega_vec[0],omega_vec[1],omega_vec[2]]),curr_time+delta_t)
+    obj1.step()
+    obj2 = obj1.dense_output()
+    ans_vel = obj2.__call__(curr_time+delta_t)
+    
     # computing lamda and r_n angular rate of Z axis of nonspinning frame
+    ### Uncomment
     r_n = omega_vec[2] + (u_vec_d[1]*u_vec[0] - u_vec_d[0]*u_vec[1]) / (u_vec[0]**2 + u_vec[1]**2)
     lamda += (omega_vec[2] - r_n)*delta_t
 
-    # Rate of Euler's angles
-    Psi_d = (omega_vec[0]*sin(lamda) + omega_vec[1]*cos(lamda)) * sin(Phi)/cos(Theta) + r_n*cos(Phi)/cos(Theta)
-    Theta_d = (omega_vec[0]*sin(lamda) + omega_vec[1]*cos(lamda))*cos(Phi) - r_n*sin(Phi)
-    Phi_d = (omega_vec[0]*cos(lamda)-omega_vec[1]*sin(lamda)) + (omega_vec[0]*sin(lamda)+omega_vec[1]*cos(lamda))*sin(Phi)*tan(Theta) + r_n*cos(Phi)*tan(Theta)
+    def funcapangle(t,x) :
+        global omega_vec,lamda,r_n
+        Theta = x[1]
+        Phi = x[2]
+        Psi_d = (omega_vec[0]*sin(lamda) + omega_vec[1]*cos(lamda)) * sin(Phi)/cos(Theta) + r_n*cos(Phi)/cos(Theta)
+        Theta_d = (omega_vec[0]*sin(lamda) + omega_vec[1]*cos(lamda))*cos(Phi) - r_n*sin(Phi)
+        Phi_d = (omega_vec[0]*cos(lamda)-omega_vec[1]*sin(lamda)) + (omega_vec[0]*sin(lamda)+omega_vec[1]*cos(lamda))*sin(Phi)*tan(Theta) + r_n*cos(Phi)*tan(Theta)
 
-    psi_d = omega_vec[1]*sin(phi) / cos(theta) + omega_vec[2] * cos(phi) / cos(theta)
-    theta_d = omega_vec[1] * cos(phi) - omega_vec[2]*sin(phi)
-    phi_d = omega_vec[0] + omega_vec[1]*sin(phi)* tan(theta) + omega_vec[2]*cos(phi)*tan(theta)
+        return np.array([Psi_d,Theta_d,Phi_d])
+    
+    obj1 = RK45(funcapangle,curr_time,np.array([Psi,Theta,Phi]),curr_time+delta_t)
+    obj1.step()
+    obj2 = obj1.dense_output()
+    ans_capangles = obj2.__call__(curr_time+delta_t)
+    
+    def funangle(t,x) :
+        global omega_vec,lamda,r_n
+        theta = x[1]
+        phi = x[2]
+        psi_d = omega_vec[1]*sin(phi) / cos(theta) + omega_vec[2] * cos(phi) / cos(theta)
+        theta_d = omega_vec[1] * cos(phi) - omega_vec[2]*sin(phi)
+        phi_d = omega_vec[0] + omega_vec[1]*sin(phi)* tan(theta) + omega_vec[2]*cos(phi)*tan(theta)
 
+        return np.array([psi_d,theta_d,phi_d])
+    
+    obj1 = RK45(funangle,curr_time,np.array([psi,theta,phi]),curr_time+delta_t)
+    obj1.step()
+    obj2 = obj1.dense_output()
+    ans_angles = obj2.__call__(curr_time+delta_t)
+    
     T0 = transformations.doT0Transformation(phi, theta, psi)
     Ti = transformations.doTiTransformation(Phi0, Theta0, Psi0)
     U = np.matmul(np.matmul(inv(Ti),inv(T0)),u_vec)
+    
     # next time step
-    u_vec += u_vec_d*delta_t
-    omega_vec += omega_vec_d*delta_t
+    
+    u_vec = ans_vel[:3]
+    omega_vec = ans_vel[3:]
 
-    Phi += Phi_d*delta_t
-    Psi += Psi_d*delta_t
-    Theta += Theta_d*delta_t
+    Psi = ans_capangles[0]
+    Theta = ans_capangles[1]
+    Phi = ans_capangles[2]
 
-    phi += phi_d*delta_t
-    psi += psi_d*delta_t
-    theta += theta_d*delta_t
-
+    psi = ans_angles[0]
+    theta = ans_angles[1]
+    phi = ans_angles[2]
+    
     path_vec += U*delta_t
 
     Angle_vec = np.array([Phi, Theta, Psi])
@@ -226,6 +279,7 @@ while steps <= total_steps :
     # print(alpha_vec_2)
     print("Step ",steps)
     steps += 1
+    curr_time += delta_t
 
 df_u_vec = pd.DataFrame(trajectory_u_vec, dtype=None, copy=False)
 df_omega_vec = pd.DataFrame(trajectory_omega_vec, dtype=None, copy=False)
@@ -249,3 +303,4 @@ print("Time taken in seconds",b-a)
 # # print(trajectory_Phi_Theta_Psi)
 # # print(trajectory_phi_theta_psi)
 # # print(trajectory_path)
+

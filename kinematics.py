@@ -28,8 +28,8 @@ def doPositionVector(Tj,length,x_ac,segments) :
 
 # f6 - Relative air velocity of blade in blade frame
 def doRelativeAirVelBlade(v_j_vec, Tj) :
-    return transpose(np.matmul(Tj,transpose(-v_j_vec)))
-#-[0,0,-4.648]
+    return transpose(np.matmul(Tj,transpose(-v_j_vec-[0,0,0])))
+
 # f5 - Velocity of blade in body frame
 def doVelBlade(u_vec, omega_vec, r_j_ac) :
     v_vec = []

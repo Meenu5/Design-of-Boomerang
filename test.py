@@ -1,29 +1,25 @@
-import coefficients
 import numpy as np 
+import pandas as pd 
+from math import sqrt
 
-Cl,Cd = coefficients.doClCd(0)
-
-
-
-
-def doCx_A(w_vec, c, R, S, Omega, alpha, Lamda, theta_pitch, beta,  length, segments ) :
-    Cx_A = 0
-    for i in range(segments) :
-        w = np.linalg.norm(w_vec[i])
-        c1 = (w**2)*c*R / (((R*Omega)**2) * S)
-        Cl, Cd = doClCd(alpha[i])
-        print("Cl",Cl)
-        c2 = -Cl * sin(alpha[i]) * sin(Lamda)  + (theta_pitch *sin(Lamda) - beta*cos(Lamda)) * (Cl*cos(alpha[i]))
-        f1 = c1 * c2 / R
-        Cx_A += f1*length/segments
-
-    return Cx_A
-
-print(Cx_A)
-
-
-
-print("first",-theta_pitch*Cl*sin(alpha[i])*eta/ R)
-print("last but one",alpha[i],Cl,eta,R,- (-Cl*cos(alpha[i])*eta / R))
-print("last",(c/R)*Cm*cos(Lamda))
-print("c1,c2",c1,c2 )
+def RK4(f):
+    return lambda t, y, dt: (
+            lambda dy1: (
+            lambda dy2: (
+            lambda dy3: (
+            lambda dy4: (dy1 + 2*dy2 + 2*dy3 + dy4)/6
+            )( dt * f( t + dt  , y + dy3   ) )
+	    )( dt * f( t + dt/2, y + dy2/2 ) )
+	    )( dt * f( t + dt/2, y + dy1/2 ) )
+	    )( dt * f( t       , y         ) )
+ 
+def theory(t): return (t**2 + 4)**2 /16
+ 
+dy = RK4(lambda t, y: t*sqrt(y))
+ 
+t, y, dt = 0., 1., .1
+while t <= 10:
+    if abs(round(t) - t) < 1e-5:
+	    print("y(%2.1f)\t= %4.6f \t error: %4.6g" % ( t, y, abs(y - theory(t))))
+    t, y = t + dt, y + dy( t, y, dt )
+ 
