@@ -41,8 +41,8 @@ theta_pitch_vec = np.array([theta_1, theta_2]) # theta_pitch of blades
 Lamda_vec = np.array([Lamda_1,Lamda_2]) # Lamda of blades
 beta_vec = np.array([0.,0.]) # beta of blades
 
-delta_t = .01 # time step
-total_time = 0.01
+delta_t = .0001 # time step
+total_time = 3
 total_steps = total_time/delta_t
 # Initial Conditions
 u_vec = np.array([10.,0.,0.]) # initialize u_vec

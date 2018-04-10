@@ -65,7 +65,11 @@ def doCx_A(w_vec, c, R, S, Omega, alpha, Lamda, theta_pitch, beta,  length, segm
         Cl, Cd = doClCd(alpha[i])
         c2 = (-Cl * sin(alpha[i]) + k*Cd*cos(alpha[i])) * sin(Lamda)  + (theta_pitch *sin(Lamda) - beta*cos(Lamda)) * (Cl*cos(alpha[i]) + k*Cd*sin(alpha[i]))
         f1 = c1 * c2 / R
-        g.append(f1*length/segments)
+
+    #     Cx_A += f1*length/segments
+    # return Cx_A
+
+        g.append(f1)
 
     for i in range(3,segments-3,2):
         sum1=sum1 + g[i]
@@ -91,7 +95,11 @@ def doCy_A(w_vec, c, R, S, Omega, alpha, Lamda, theta_pitch, beta,  length, segm
         Cl, Cd = doClCd(alpha[i])
         c2 = -(-Cl * sin(alpha[i]) + k*Cd*cos(alpha[i])) * cos(Lamda)  - (theta_pitch *cos(Lamda) + beta*sin(Lamda)) * (Cl*cos(alpha[i]) + k*Cd*sin(alpha[i]))
         f1 = c1 * c2 / R
-        g.append(f1*length/segments)
+
+    #     Cy_A += f1*length/segments
+    # return Cy_A
+
+        g.append(f1)
 
     for i in range(3,segments-3,2):
         sum1=sum1 + g[i]
@@ -116,7 +124,11 @@ def doCz_A(w_vec, c, R, S, Omega, alpha, Lamda, theta_pitch, beta,  length, segm
         Cl, Cd = doClCd(alpha[i])
         c2 = -theta_pitch*(-Cl * sin(alpha[i]) + k*Cd*cos(alpha[i])) + (Cl*cos(alpha[i]) + k*Cd*sin(alpha[i]))
         f1 = c1 * c2 / R
-        g.append(f1*length/segments)
+        
+    #     Cz_A += f1*length/segments
+    # return Cz_A
+
+        g.append(f1)
 
     for i in range(3,segments-3,2):
         sum1=sum1 + g[i]
@@ -143,8 +155,12 @@ def doCm_x_A(w_vec, c, R, S, Omega, alpha, Lamda, theta_pitch, beta, length, seg
         eta = (i+0.5)*length / segments
         c2 = (Cl*sin(alpha[i]) + k*Cd*cos(alpha[i]))*sin(Lamda)*eta/ R - (theta_pitch*sin(Lamda) - beta*cos(Lamda)) *(-Cl*cos(alpha[i]) + k*Cd*sin(alpha[i]))*eta / R + (c/R)*Cm*cos(Lamda)
         f1 = c1 * c2 / R
-        g.append(f1*length/segments)
 
+    #     Cm_x_A += f1*length/segments
+
+    # return Cm_x_A
+        g.append(f1)
+    
     for i in range(3,segments-3,2):
         sum1=sum1 + g[i]
 
@@ -171,7 +187,17 @@ def doCm_y_A(w_vec, c, R, S, Omega, alpha, Lamda, theta_pitch, beta,  length, se
         eta = (i+0.5)*length / segments
         c2 = -(Cl*sin(alpha[i]) + k*Cd*cos(alpha[i]))*cos(Lamda)*eta/ R + (theta_pitch*cos(Lamda) + beta*sin(Lamda)) *(-Cl*cos(alpha[i]) + k*Cd*sin(alpha[i]))*eta / R - (c/R)*Cm*cos(Lamda)
         f1 = c1 * c2 / R
-        g.append(f1*length/segments)
+      
+    #     integral_term += f1*length/segments
+
+    # Cz = doCz_A(w_vec, c, R, S, Omega, alpha, Lamda, theta_pitch, beta,  length, segments, k_vec )
+    # sum_term = x_ac / R * Cz
+    # return integral_term - sum_term
+
+    #     Cm_y_A += f1*length/segments
+
+    # return Cm_y_A
+        g.append(f1)
 
     for i in range(3,segments-3,2):
         sum1=sum1 + g[i]
@@ -185,6 +211,7 @@ def doCm_y_A(w_vec, c, R, S, Omega, alpha, Lamda, theta_pitch, beta,  length, se
     Cz = doCz_A(w_vec, c, R, S, Omega, alpha, Lamda, theta_pitch, beta,  length, segments, k_vec )
     sum_term = x_ac / R * Cz
     return integral_term - sum_term
+
 # f10
 def doCm_z_A(w_vec, c, R, S, Omega, alpha, Lamda, theta_pitch, beta,  length, segments,x_ac, k_vec) :
     integral_term = 0
@@ -201,7 +228,16 @@ def doCm_z_A(w_vec, c, R, S, Omega, alpha, Lamda, theta_pitch, beta,  length, se
         eta = (i+0.5)*length / segments
         c2 = -theta_pitch*(Cl*sin(alpha[i]) + k*Cd*cos(alpha[i]))*eta/ R - (-Cl*cos(alpha[i]) + k*Cd*sin(alpha[i]))*eta / R + (c/R)*Cm*cos(Lamda)
         f1 = c1 * c2 / R
-        g.append(f1*length/segments)
+
+    #     integral_term += f1*length/segments
+
+    # Cy = doCy_A(w_vec, c, R, S, Omega, alpha, Lamda, theta_pitch, beta,  length, segments, k_vec )
+
+    # sum_term = x_ac / R * Cy
+
+    # return integral_term + sum_term
+
+        g.append(f1)
 
     for i in range(3,segments-3,2):
         sum1=sum1 + g[i]

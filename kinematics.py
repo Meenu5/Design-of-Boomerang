@@ -23,7 +23,7 @@ def doPositionVector(Tj,length,x_ac,segments) :
     for i in range(segments) :
         eta = (i+0.5)*length/segments
         pos_vec = np.array([0,eta,0])
-        r_j_vec.append(transpose(np.array([x_ac,0,0])) + np.matmul(inv(Tj),transpose(pos_vec)))
+        r_j_vec.append(transpose(np.array([x_ac,0,0])) + np.matmul(transpose(Tj),transpose(pos_vec)))
     return np.array(r_j_vec)
 
 # f6 - Relative air velocity of blade in blade frame
@@ -43,9 +43,9 @@ def doAlpha(w_vec) :
     k_vec = []
     for i in w_vec :
         if i[0] < 0 :
-            k_vec += [1]
+            k_vec += [0]
         else :
-            k_vec += [-1]
+            k_vec += [0]
 
     for i in w_vec :
         if i[2]>=0 and i[0]>=0 :
