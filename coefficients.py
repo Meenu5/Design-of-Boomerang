@@ -34,7 +34,8 @@ def doClCd(alpha) :
             Cd_ans = (Cd[i]-Cd[i-1]) / (alpha_Cd[i]-alpha_Cd[i-1]) * (alpha-alpha_Cd[i-1]) + Cd[i-1]
             break
 
-    return Cl_ans, Cd_ans
+    return 0,0.01
+    # return Cl_ans, Cd_ans
 
 def doCm(alpha) :
     Cm, alpha_Cm = aerocoefficients.doLoadMomentCoefficients()
@@ -54,6 +55,7 @@ def doCm(alpha) :
 
 # f11
 def doCx_A(w_vec, c, R, S, Omega, alpha, Lamda, theta_pitch, beta,  length, segments, k_vec ) :
+    
     Cx_A = 0
     g=[]
     sum1=0

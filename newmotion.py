@@ -44,9 +44,9 @@ beta_vec = np.array([0.,0.]) # beta of blades
 
 delta_t = .0001 # time step
 total_time = 5
-# total_steps = total_time/delta_t
+total_steps = total_time/delta_t
 curr_time = 0
-total_steps = 1
+
 # Initial Conditions
 u_vec = np.array([10.,0.,0.]) # initialize u_vec
 omega_vec = np.array([0.,0.,60.]) # initialize omega_vec
@@ -230,7 +230,7 @@ while steps <= total_steps :
 
         return np.array([x0d,x1d,x2d,x3d,x4d,x5d])
 
-    obj1 = RK45(funvel,curr_time,np.array([u_vec[0],u_vec[1],u_vec[2],omega_vec[0],omega_vec[1],omega_vec[2]]),curr_time+5)
+    obj1 = RK45(funvel,curr_time,np.array([u_vec[0],u_vec[1],u_vec[2],omega_vec[0],omega_vec[1],omega_vec[2]]),curr_time+delta_t)
     obj1.step()
     obj2 = obj1.dense_output()
     ans_vel = obj2.__call__(curr_time+delta_t)
@@ -250,7 +250,7 @@ while steps <= total_steps :
 
         return np.array([Psi_d,Theta_d,Phi_d])
 
-    obj1 = RK45(funcapangle,curr_time,np.array([Psi,Theta,Phi]),curr_time+5)
+    obj1 = RK45(funcapangle,curr_time,np.array([Psi,Theta,Phi]),curr_time+delta_t)
     obj1.step()
     obj2 = obj1.dense_output()
     ans_capangles = obj2.__call__(curr_time+delta_t)
@@ -265,7 +265,7 @@ while steps <= total_steps :
 
         return np.array([psi_d,theta_d,phi_d])
 
-    obj1 = RK45(funangle,curr_time,np.array([psi,theta,phi]),curr_time+5)
+    obj1 = RK45(funangle,curr_time,np.array([psi,theta,phi]),curr_time+delta_t)
     obj1.step()
     obj2 = obj1.dense_output()
     ans_angles = obj2.__call__(curr_time+delta_t)
@@ -327,7 +327,7 @@ while steps <= total_steps :
 
     }
 
-    if steps%1 == 0 :
+    if steps%5 == 0 :
         df_u_vec = pd.DataFrame(trajectory_u_vec, dtype=None, copy=False)
         df_omega_vec = pd.DataFrame(trajectory_omega_vec, dtype=None, copy=False)
         df_Phi_Theta_Psi = pd.DataFrame(trajectory_Phi_Theta_Psi, dtype=None, copy=False)

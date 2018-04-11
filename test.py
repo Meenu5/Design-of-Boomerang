@@ -1,25 +1,37 @@
 import numpy as np 
 import pandas as pd 
-from math import sqrt
+from scipy.integrate import RK45
 
-def RK4(f):
-    return lambda t, y, dt: (
-            lambda dy1: (
-            lambda dy2: (
-            lambda dy3: (
-            lambda dy4: (dy1 + 2*dy2 + 2*dy3 + dy4)/6
-            )( dt * f( t + dt  , y + dy3   ) )
-	    )( dt * f( t + dt/2, y + dy2/2 ) )
-	    )( dt * f( t + dt/2, y + dy1/2 ) )
-	    )( dt * f( t       , y         ) )
+# def RK4(f):
+#     return lambda t, y, dt: (
+#             lambda dy1: (
+#             lambda dy2: (
+#             lambda dy3: (
+#             lambda dy4: (dy1 + 2*dy2 + 2*dy3 + dy4)/6
+#             )( dt * f( t + dt  , y + dy3   ) )
+# 	    )( dt * f( t + dt/2, y + dy2/2 ) )
+# 	    )( dt * f( t + dt/2, y + dy1/2 ) )
+# 	    )( dt * f( t       , y         ) )
  
-def theory(t): return (t**2 + 4)**2 /16
+# def theory(t): return (t**2 + 4)**2 /16
  
-dy = RK4(lambda t, y: t*sqrt(y))
+# dy = RK4(lambda t, y: t*sqrt(y))
  
-t, y, dt = 0., 1., .1
-while t <= 10:
-    if abs(round(t) - t) < 1e-5:
-	    print("y(%2.1f)\t= %4.6f \t error: %4.6g" % ( t, y, abs(y - theory(t))))
-    t, y = t + dt, y + dy( t, y, dt )
+# t, y, dt = 0., 1., .1
+# while t <= 10:
+#     if abs(round(t) - t) < 1e-5:
+# 	    print("y(%2.1f)\t= %4.6f \t error: %4.6g" % ( t, y, abs(y - theory(t))))
+#     t, y = t + dt, y + dy( t, y, dt )
  
+curr_time = 0
+delta_t = 0.1
+initial_value = 0
+def funangle(t,x) :
+        return t
+
+obj1 = RK45(funangle,curr_time,[initial_value],curr_time+delta_t)
+obj1.step()
+obj2 = obj1.dense_output()
+ans = obj2.__call__(curr_time+delta_t)
+
+print(ans)
