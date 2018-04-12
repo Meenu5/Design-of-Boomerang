@@ -42,24 +42,34 @@ theta_pitch_vec = np.array([theta_1, theta_2]) # theta_pitch of blades
 Lamda_vec = np.array([Lamda_1,Lamda_2]) # Lamda of blades
 beta_vec = np.array([0.,0.]) # beta of blades
 
-delta_t = .0001 # time step
-total_time = 5
+delta_t = 0.001 # time step
+total_time = 0.01
 total_steps = total_time/delta_t
 curr_time = 0
 
 # Initial Conditions
 u_vec = np.array([10.,0.,0.]) # initialize u_vec
-omega_vec = np.array([0.,0.,60.]) # initialize omega_vec
+omega_vec = np.array([0.,0.,10]) # initialize omega_vec
 u_vec_d = np.zeros(3) # dummy initialisation
-Omega = omega_vec[2] # r at t = 0
-path_vec = np.array([0.,0.,1.]) # initial X0,Y0,Z0
+Omega = 0.01 # r at t = 0
+
+path_vec = np.array([0.,0.,0.]) # initial X0,Y0,Z0
 phi = 60.*pi/180.
+
+phi = 0
+
 theta = 0.
 psi = 0.
 Phi0 = 60.*pi/180.
+
+Phi0 = 0
+
 Theta0 = 0.
 Psi0 = 0.
 Phi = 60.*pi/180.
+
+Phi = 0
+
 Psi = 0.
 Theta = 0.
 lamda = 0.
@@ -129,6 +139,8 @@ while steps <= total_steps :
     w_vec_1 = kinematics.doRelativeAirVelBlade(v_vec_1,Tj1)
     w_vec_2 = kinematics.doRelativeAirVelBlade(v_vec_2,Tj2)
 
+    # print(w_vec_1)
+
     alpha_vec_1, k_vec_1 = kinematics.doAlpha(w_vec_1)
     alpha_vec_2, k_vec_2 = kinematics.doAlpha(w_vec_2)
 
@@ -154,11 +166,11 @@ while steps <= total_steps :
     #print("Cz_A",Cz_A) ##
 
     Cx_G = coefficients.doCx_G(phi, theta, psi, Phi0, Theta0, Psi0)
-    #print("Cx_g",Cx_G)
+    # print("Cx_g",Cx_G) # comment  
     Cy_G = coefficients.doCy_G(phi, theta, psi, Phi0, Theta0, Psi0)
-    #print("Cy_g",Cy_G)
+    # print("Cy_g",Cy_G) # comment
     Cz_G = coefficients.doCz_G(phi, theta, psi, Phi0, Theta0, Psi0)
-    #print("Cz_g",Cz_G)
+    # print("Cz_g",Cz_G) # comment
 
     # Moment coefficients
     Cm_x_A = coefficients.doCm_x_A(w_vec_1, c, R, S, Omega, alpha_vec_1, Lamda_1, theta_1, beta_1,  length_1, segments, k_vec_1)
@@ -219,7 +231,8 @@ while steps <= total_steps :
 
     # rk45
     def funvel(t,x) :
-        global c1,c2,c3,c4,c5,c6,J
+        global J, c1,c2,c3,c4,c5,c6 
+        
         x0d  = c1 - x[4]*x[2] + x[5]*x[1]
         x1d  = c2 - x[5]*x[0] + x[3]*x[2]
         x2d  = c3 - x[3]*x[1] + x[4]*x[0]
@@ -270,10 +283,7 @@ while steps <= total_steps :
     obj2 = obj1.dense_output()
     ans_angles = obj2.__call__(curr_time+delta_t)
 
-    T0 = transformations.doT0Transformation(phi, theta, psi)
-    Ti = transformations.doTiTransformation(Phi0, Theta0, Psi0)
-    U = np.matmul(np.matmul(inv(Ti),inv(T0)),u_vec)
-
+    
     # next time step
 
     u_vec = ans_vel[:3]
@@ -286,6 +296,10 @@ while steps <= total_steps :
     psi = ans_angles[0]
     theta = ans_angles[1]
     phi = ans_angles[2]
+
+    T0 = transformations.doT0Transformation(phi, theta, psi)
+    Ti = transformations.doTiTransformation(Phi0, Theta0, Psi0)
+    U = np.matmul(np.matmul(inv(Ti),inv(T0)),u_vec)
 
     path_vec += U*delta_t
 
@@ -327,7 +341,7 @@ while steps <= total_steps :
 
     }
 
-    if steps%5 == 0 :
+    if steps%1 == 0 :
         df_u_vec = pd.DataFrame(trajectory_u_vec, dtype=None, copy=False)
         df_omega_vec = pd.DataFrame(trajectory_omega_vec, dtype=None, copy=False)
         df_Phi_Theta_Psi = pd.DataFrame(trajectory_Phi_Theta_Psi, dtype=None, copy=False)

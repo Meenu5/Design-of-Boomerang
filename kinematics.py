@@ -1,6 +1,6 @@
 import numpy as np
 from numpy.linalg import inv
-
+import copy
 tan = np.tan
 cos = np.cos
 sin = np.sin
@@ -43,9 +43,9 @@ def doAlpha(w_vec) :
     k_vec = []
     for i in w_vec :
         if i[0] < 0 :
-            k_vec += [1]
+            k_vec += [0]
         else :
-            k_vec += [-1]
+            k_vec += [0]
 
     for i in w_vec :
         if i[2]>=0 and i[0]>=0 :
@@ -56,6 +56,6 @@ def doAlpha(w_vec) :
             alpha = -taninv(abs(i[2]/i[0]))
         else :
             alpha = taninv(abs(i[2]/i[0]))
-        alpha_vec.append(alpha)
+        alpha_vec.append(copy.copy((alpha)))
     return list(alpha_vec),k_vec
 

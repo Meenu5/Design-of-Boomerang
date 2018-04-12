@@ -31,10 +31,21 @@ pi = np.pi
 
 df = pd.read_csv("coordinates.csv")
 x = list(df["0"])
-y = list(df["1"])
+y = list(df["2"])
+y_the = [-i**2/200*9.81 for i in x]
+# plt.plot(x,y)
+x = x[1:]
+y = y[1:]
+ratio = []
+time = []
+for i in range(len(x)) :
+    ratio += [(x[i]**2)/y[i]]
+    time += [(i+1)*0.01]
+    gt += 
 
+plt.plot(time,y)
+plt.plot(time,y_the[1:])
 
-plt.plot(x[:-1],y[:-1])
 plt.xlabel("X coordinate")
 plt.ylabel("Y coordinate")
 plt.title("X vs Y")
