@@ -35,7 +35,7 @@ beta_1 = 0.
 beta_2 = 0.
 segments = 30
 
-inertia_jframe = np.array([[1.9*10**-3, 0., 0.],[0,4.88*10**-6, 0.],[0.,0.,1.9*10**-3]])
+inertia_jframe = np.array([[1.9*10**-3, 5.14*10**-21., 0.],[5.14*10**-21,4.88*10**-6, 0.],[0.,0.,1.9*10**-3]])
 x_ac_vec = np.array([x_ac_1,x_ac_2])
 length_vec = np.array([length_1, length_2]) # length of blades
 theta_pitch_vec = np.array([theta_1, theta_2]) # theta_pitch of blades
@@ -75,6 +75,16 @@ trajectory_Phi_Theta_Psi = []
 trajectory_path = []
 trajectory_phi_theta_psi = []
 
+lCx_A = []
+lCy_A = []
+lCz_A = []
+lCx_G = []
+lCy_G = []
+lCz_G = []
+lCm_x_A = []
+lCm_y_A = []
+lCm_z_A = []
+
 
 # Unchanged params
 Tj1 = transformations.doT0TjTransformation(Lamda_vec[0],theta_pitch_vec[0],beta_vec[0]) # blade 1
@@ -93,7 +103,7 @@ J = J1+J2
 #         if J[i][j] < 10**-5 :
 #             J[i][j] = 0
 
-
+# print(J)
 # initial velocity
 trajectory_u_vec.append(copy.copy(u_vec))
 trajectory_omega_vec.append(copy.copy(omega_vec))
@@ -101,6 +111,15 @@ trajectory_Phi_Theta_Psi.append(copy.copy(np.array([Phi, Theta, Psi])))
 trajectory_phi_theta_psi.append(copy.copy(np.array([Phi,Theta,Psi])))
 trajectory_path.append(copy.copy(path_vec))
 
+lCx_A.append(copy.copy(0))
+lCy_A.append(copy.copy(0))
+lCz_A.append(copy.copy(0))
+lCx_G.append(copy.copy(0))
+lCy_G.append(copy.copy(0))
+lCz_G.append(copy.copy(0))
+lCm_x_A.append(copy.copy(0))
+lCm_y_A.append(copy.copy(0))
+lCm_z_A.append(copy.copy(0))
 
 a = time.time()
 steps = 0
@@ -118,8 +137,8 @@ while steps <= total_steps :
     alpha_vec_1, k_vec_1 = kinematics.doAlpha(w_vec_1)
     alpha_vec_2, k_vec_2 = kinematics.doAlpha(w_vec_2)
 
-
-
+    # print("v_vec_1",v_vec_1)
+    # print("v_vec_2",v_vec_2)
 
 
     # Coefficients - Aerodynamic and Body
@@ -211,9 +230,13 @@ while steps <= total_steps :
         x1d  = c2 - x[5]*x[0] + x[3]*x[2]
         x2d  = c3 - x[3]*x[1] + x[4]*x[0]
 
-        x3d  = (-J[2][2]*x[3]*x[5]-J[0][1]*x[3]*x[5]-c5)/J[0][1]
-        x4d  = (J[2][2]*x[4]*x[5]+J[0][1]*x[3]*x[5]-c4)/J[0][1]
-        x5d  = (c6-J[0][1]*x[4]*x[4]-J[0][1]*x[3]*x[3])/J[2][2]
+        x3d = -((J[2][2]/J[0][1]+1)*x[3]*x[5] + c5/J[0][1])
+        x4d = (-c4/J[0][1] + J[2][2]/J[0][1]*x[4]*x[5] +x [3]*x[5])
+        x5d = c6/J[2][2] - (J[0][1]/J[2][2])*(x[4]**2-x[3]**2)
+
+        # x3d  = (-J[2][2]*x[3]*x[5]-J[0][1]*x[3]*x[5]-c5)/J[0][1]
+        # x4d  = (J[2][2]*x[4]*x[5]+J[0][1]*x[3]*x[5]-c4)/J[0][1]
+        # x5d  = (c6-J[0][1]*x[4]*x[4]-J[0][1]*x[3]*x[3])/J[2][2]
 
         return np.array([x0d,x1d,x2d,x3d,x4d,x5d])
 
@@ -292,7 +315,28 @@ while steps <= total_steps :
     steps += 1
     curr_time += delta_t
 
- 
+    lCx_A += [Cx_A]
+    lCy_A += [Cy_A]
+    lCz_A += [Cz_A]
+    lCx_G += [Cx_G]
+    lCy_G += [Cy_G]
+    lCz_G += [Cz_G]
+    lCm_x_A += [Cm_x_A]
+    lCm_y_A += [Cm_y_A]
+    lCm_z_A += [Cm_z_A]
+
+    coefficients_dict = {
+        "Cx_A" : lCx_A,
+        "Cy_A" : lCy_A,
+        "Cz_A" : lCz_A,
+        "Cx_G" : lCx_A,
+        "Cy_G" : lCy_G,
+        "Cz_G" : lCz_G,
+        "Cm_x_A" : lCm_x_A,
+        "Cm_y_A" : lCm_y_A,
+        "Cm_z_A" : lCm_z_A
+
+    }
 
     if steps%1 == 0 :
         df_u_vec = pd.DataFrame(trajectory_u_vec, dtype=None, copy=False)
@@ -300,7 +344,9 @@ while steps <= total_steps :
         df_Phi_Theta_Psi = pd.DataFrame(trajectory_Phi_Theta_Psi, dtype=None, copy=False)
         df_phi_theta_psi = pd.DataFrame(trajectory_phi_theta_psi, dtype=None, copy=False)
         df_path = pd.DataFrame(trajectory_path, dtype=None, copy=False)
+        df_coefficients = pd.DataFrame(data=coefficients_dict)
 
+        df_coefficients.to_csv("aeroCoefficients.csv")
         df_u_vec.to_csv("linearVel.csv")
         df_omega_vec.to_csv("angularVel.csv")
         df_Phi_Theta_Psi.to_csv("eulerAnglesCap.csv")

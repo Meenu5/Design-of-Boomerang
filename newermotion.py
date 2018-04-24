@@ -35,7 +35,9 @@ beta_1 = 0.
 beta_2 = 0.
 segments = 30
 
-inertia_jframe = np.array([[1.9*10**-3, 0., 0.],[0,4.88*10**-6, 0.],[0.,0.,1.9*10**-3]])
+x = [10,0.,0.,0.,0.,60]
+
+inertia_jframe = np.array([[1.9*10**-3, 0., 0.],[0.,4.88*10**-6, 0.],[0.,0.,1.9*10**-3]])
 x_ac_vec = np.array([x_ac_1,x_ac_2])
 length_vec = np.array([length_1, length_2]) # length of blades
 theta_pitch_vec = np.array([theta_1, theta_2]) # theta_pitch of blades
@@ -48,21 +50,28 @@ total_steps = total_time/delta_t
 curr_time = 0
 
 # Initial Conditions
-u_vec_d = np.array([0.,0.,0.])
 u_vec = np.array([10.,0.,0.]) # initialize u_vec
 omega_vec = np.array([0.,0.,60]) # initialize omega_vec
+u_vec_d = np.zeros(3) # dummy initialisation
 Omega = copy.copy(omega_vec[2]) # r at t = 0
 
-path_vec = np.array([0.,0.,1.]) # initial X0,Y0,Z0
+path_vec = np.array([0.,0.,0.]) # initial X0,Y0,Z0
 phi = 60.*pi/180.
+
+phi = 0
+
 theta = 0.
 psi = 0.
-
 Phi0 = 60.*pi/180.
+
+Phi0 = 0
+
 Theta0 = 0.
 Psi0 = 0.
-
 Phi = 60.*pi/180.
+
+Phi = 0
+
 Psi = 0.
 Theta = 0.
 lamda = 0.
@@ -74,6 +83,16 @@ trajectory_omega_vec = []
 trajectory_Phi_Theta_Psi = []
 trajectory_path = []
 trajectory_phi_theta_psi = []
+
+lCx_A = []
+lCy_A = []
+lCz_A = []
+lCx_G = []
+lCy_G = []
+lCz_G = []
+lCm_x_A = []
+lCm_y_A = []
+lCm_z_A = []
 
 
 # Unchanged params
@@ -87,13 +106,12 @@ J1 = np.matmul(transpose(Tj1),inertia_jframe)
 J2 = np.matmul(transpose(Tj2),inertia_jframe)
 J = J1+J2
 
-
 # for i in range(3) :
 #     for j in range(3) :
 #         if J[i][j] < 10**-5 :
 #             J[i][j] = 0
 
-
+# print(J)
 # initial velocity
 trajectory_u_vec.append(copy.copy(u_vec))
 trajectory_omega_vec.append(copy.copy(omega_vec))
@@ -101,6 +119,15 @@ trajectory_Phi_Theta_Psi.append(copy.copy(np.array([Phi, Theta, Psi])))
 trajectory_phi_theta_psi.append(copy.copy(np.array([Phi,Theta,Psi])))
 trajectory_path.append(copy.copy(path_vec))
 
+lCx_A.append(copy.copy(0))
+lCy_A.append(copy.copy(0))
+lCz_A.append(copy.copy(0))
+lCx_G.append(copy.copy(0))
+lCy_G.append(copy.copy(0))
+lCz_G.append(copy.copy(0))
+lCm_x_A.append(copy.copy(0))
+lCm_y_A.append(copy.copy(0))
+lCm_z_A.append(copy.copy(0))
 
 a = time.time()
 steps = 0
@@ -114,24 +141,25 @@ while steps <= total_steps :
     w_vec_1 = kinematics.doRelativeAirVelBlade(v_vec_1,Tj1)
     w_vec_2 = kinematics.doRelativeAirVelBlade(v_vec_2,Tj2)
 
-   
+    # print(w_vec_1)
+
     alpha_vec_1, k_vec_1 = kinematics.doAlpha(w_vec_1)
     alpha_vec_2, k_vec_2 = kinematics.doAlpha(w_vec_2)
 
-
-
+    # print("w_vec_1",w_vec_1)
+    # print("w_vec_2",w_vec_2)
 
 
     # Coefficients - Aerodynamic and Body
     Cx_A = coefficients.doCx_A(w_vec_1, c, R, S, Omega, alpha_vec_1, Lamda_1, theta_1, beta_1,  length_1, segments, k_vec_1)
-    # print("Cx_A",Cx_A) ##
+    # # print("Cx_A",Cx_A) ##
     Cx_A += coefficients.doCx_A(w_vec_2, c, R, S, Omega, alpha_vec_2, Lamda_2, theta_2, beta_2,  length_2, segments, k_vec_2)
     # print("Cx_A",Cx_A) ##
 
     Cy_A = coefficients.doCy_A(w_vec_1, c, R, S, Omega, alpha_vec_1, Lamda_1, theta_1, beta_1,  length_1, segments, k_vec_1)
-    # print("Cy_A",Cy_A)
+    # # print("Cy_A",Cy_A)
     Cy_A += coefficients.doCy_A(w_vec_2, c, R, S, Omega, alpha_vec_2, Lamda_2, theta_2, beta_2,  length_2, segments, k_vec_2)
-    # print("Cy_A",Cy_A) ##
+    #print("Cy_A",Cy_A) ##
 
     Cz_A = coefficients.doCz_A(w_vec_1, c, R, S, Omega, alpha_vec_1, Lamda_1, theta_1, beta_1,  length_1, segments, k_vec_1)
     # # #print("Cz_A",Cz_A)
@@ -161,9 +189,9 @@ while steps <= total_steps :
     #print("Cm_z_A",Cm_z_A)
 
     # # Linear Acceleration Calculation
-    u_vec_d[0]  = 0.5*rho*((R*Omega)**2)*S*Cx_A / m- g*Cx_G - omega_vec[1]*u_vec[2] + omega_vec[2]*u_vec[1]
-    u_vec_d[1]  = 0.5*rho*((R*Omega)**2)*S*Cy_A / m- g*Cy_G - omega_vec[2]*u_vec[0] + omega_vec[0]*u_vec[2]
-    u_vec_d[2]  = 0.5*rho*((R*Omega)**2)*S*Cz_A / m- g*Cz_G - omega_vec[0]*u_vec[1] + omega_vec[1]*u_vec[0]
+    # u_vec_d[0]  = 0.5*rho*((R*Omega)**2)*S*Cx_A / m- g*Cx_G - omega_vec[1]*u_vec[2] + omega_vec[2]*u_vec[1]
+    # u_vec_d[1]  = 0.5*rho*((R*Omega)**2)*S*Cy_A / m- g*Cy_G - omega_vec[2]*u_vec[0] + omega_vec[0]*u_vec[2]
+    # u_vec_d[2]  = 0.5*rho*((R*Omega)**2)*S*Cz_A / m- g*Cz_G - omega_vec[0]*u_vec[1] + omega_vec[1]*u_vec[0]
 
 
     # # Rate of angular velocity calculation
@@ -203,24 +231,58 @@ while steps <= total_steps :
     c5 = 0.5*rho*((R*Omega)**2)*R*S*Cm_y_A
     c6 = 0.5*rho*((R*Omega)**2)*R*S*Cm_z_A
 
+    k_ux_1 = c1 - x[4]*x[2] + x[5]*x[1]
+    k_uy_1 = c2 - x[5]*x[0] + x[3]*x[2]
+    k_uz_1 = c3 - x[3]*x[1] + x[4]*x[0]
+    k_p_1 = ((c4 + (J[0][1]/J[1][1])*c5 - (J[2][2] - J[1][1])*x[4]*x[5] - (J[0][1]/J[1][1])*(J[0][0] - J[2][2] + J[1][1] - J[0][1])*x[3]*x[5])*J[1][1]/(J[0][0]*J[1][1] - J[0][1]*J[0][1]))
+    k_q_1 = c5/J[1][1] + ((J[0][1] - J[0][0] + J[2][2])/J[1][1])*x[3]*x[5] + (J[0][1]/J[1][1])*k_p_1
+    k_r_1 = (c6 - (J[1][1] - J[0][0])*x[3]*x[4] + J[0][1]*(x[3]*x[3] - x[4]*x[4]))/J[1][1]
+    
+    k_ux_2 = c1 - (x[4]+k_q_1/2)*(x[2]+k_uz_1/2) + (x[5]+k_r_1/2)*(x[1]+k_uy_1/2)
+    k_uy_2 = c2 - (x[5]+k_r_1/2)*(x[0]+k_ux_1/2) + (x[3]+k_p_1/2)*(x[2]+k_uz_1/2)
+    k_uz_2 = c3 - (x[3]+k_p_1/2)*(x[1]+k_uy_1/2) + (x[4]+k_q_1/2)*(x[0]+k_ux_1/2)
+    k_p_2 = ((c4 + (J[0][1]/J[1][1])*c5 - (J[2][2] - J[1][1])*(x[4]+k_q_1/2)*(x[5]+k_r_1/2) - (J[0][1]/J[1][1])*(J[0][0] - J[2][2] + J[1][1] - J[0][1])*(x[3]+k_p_1/2)*(x[5]+k_r_1/2))*J[1][1]/(J[0][0]*J[1][1] - J[0][1]*J[0][1]))
+    k_q_2 = c5/J[1][1] + ((J[0][1] - J[0][0] + J[2][2])/J[1][1])*(x[3]+k_p_1/2)*(x[5]+k_r_1/2) + (J[0][1]/J[1][1])*k_p_2
+    k_r_2 = (c6 - (J[1][1] - J[0][0])*(x[3]+k_p_1/2)*(x[4]+k_q_1/2) + J[0][1]*((x[3]+k_p_1/2)*(x[3]+k_p_1/2) - (x[4]+k_q_1/2)*(x[4]+k_q_1/2)))/J[1][1]
+    
+    k_ux_3 = c1 - (x[4]+k_q_2/2)*(x[2]+k_uz_2/2) + (x[5]+k_r_2/2)*(x[1]+k_uy_2/2)
+    k_uy_3 = c2 - (x[5]+k_r_2/2)*(x[0]+k_ux_2/2) + (x[3]+k_p_2/2)*(x[2]+k_uz_2/2)
+    k_uz_3 = c3 - (x[3]+k_p_2/2)*(x[1]+k_uy_2/2) + (x[4]+k_q_2/2)*(x[0]+k_ux_2/2)
+    k_p_3 = ((c4 + (J[0][1]/J[1][1])*c5 - (J[2][2] - J[1][1])*(x[4]+k_q_2/2)*(x[5]+k_r_2/2) - (J[0][1]/J[1][1])*(J[0][0] - J[2][2] + J[1][1] - J[0][1])*(x[3]+k_p_2/2)*(x[5]+k_r_2/2))*J[1][1]/(J[0][0]*J[1][1] - J[0][1]*J[0][1]))
+    k_q_3 = c5/J[1][1] + ((J[0][1] - J[0][0] + J[2][2])/J[1][1])*(x[3]+k_p_2/2)*(x[5]+k_r_2/2) + (J[0][1]/J[1][1])*k_p_3
+    k_r_3 = (c6 - (J[1][1] - J[0][0])*(x[3]+k_p_2/2)*(x[4]+k_q_2/2) + J[0][1]*((x[3]+k_p_2/2)*(x[3]+k_p_2/2) - (x[4]+k_q_2/2)*(x[4]+k_q_2/2)))/J[1][1]
+    
+    k_ux_4 = c1 - (x[4]+k_q_3)*(x[2]+k_uz_3) + (x[5]+k_r_3)*(x[1]+k_uy_3)
+    k_uy_4 = c2 - (x[5]+k_r_3)*(x[0]+k_ux_3) + (x[3]+k_p_3)*(x[2]+k_uz_3)
+    k_uz_4 = c3 - (x[3]+k_p_3)*(x[1]+k_uy_3) + (x[4]+k_q_3)*(x[0]+k_ux_3)
+    k_p_4 = ((c4 + (J[0][1]/J[1][1])*c5 - (J[2][2] - J[1][1])*(x[4]+k_q_3)*(x[5]+k_r_3) - (J[0][1]/J[1][1])*(J[0][0] - J[2][2] + J[1][1] - J[0][1])*(x[3]+k_p_3)*(x[5]+k_r_3))*J[1][1]/(J[0][0]*J[1][1] - J[0][1]*J[0][1]))
+    k_q_4 = c5/J[1][1] + ((J[0][1] - J[0][0] + J[2][2])/J[1][1])*(x[3]+k_p_3)*(x[5]+k_r_3) + (J[0][1]/J[1][1])*k_p_4
+    k_r_4 = (c6 - (J[1][1] - J[0][0])*(x[3]+k_p_3)*(x[4]+k_q_3) + J[0][1]*((x[3]+k_p_3)*(x[3]+k_p_3) - (x[4]+k_q_3)*(x[4]+k_q_3)))/J[1][1]
+    
+    x[0] += (k_ux_1 + 2*k_ux_2 + 2*k_ux_3 + k_ux_4)*delta_t/6
+    x[1] += (k_uy_1 + 2*k_uy_2 + 2*k_uy_3 + k_uy_4)*delta_t/6
+    x[2] += (k_uz_1 + 2*k_uz_2 + 2*k_uz_3 + k_uz_4)*delta_t/6
+    x[3] += (k_p_1 + 2*k_p_2 + 2*k_p_3 + k_p_4)*delta_t/6
+    x[4] += (k_q_1 + 2*k_q_2 + 2*k_q_3 + k_q_4)*delta_t/6
+    x[5] += (k_r_1 + 2*k_r_2 + 2*k_r_3 + k_r_4)*delta_t/6
     # rk45
-    def funvel(t,x) :
-        global J, c1,c2,c3,c4,c5,c6 
+    # def funvel(t,x) :
+    #     global J, c1,c2,c3,c4,c5,c6 
         
-        x0d  = c1 - x[4]*x[2] + x[5]*x[1]
-        x1d  = c2 - x[5]*x[0] + x[3]*x[2]
-        x2d  = c3 - x[3]*x[1] + x[4]*x[0]
+    #     x0d  = c1 - x[4]*x[2] + x[5]*x[1]
+    #     x1d  = c2 - x[5]*x[0] + x[3]*x[2]
+    #     x2d  = c3 - x[3]*x[1] + x[4]*x[0]
 
-        x3d  = (-J[2][2]*x[3]*x[5]-J[0][1]*x[3]*x[5]-c5)/J[0][1]
-        x4d  = (J[2][2]*x[4]*x[5]+J[0][1]*x[3]*x[5]-c4)/J[0][1]
-        x5d  = (c6-J[0][1]*x[4]*x[4]-J[0][1]*x[3]*x[3])/J[2][2]
+    #     x3d  = (-J[2][2]*x[3]*x[5]-J[0][1]*x[3]*x[5]-c5)/J[0][1]
+    #     x4d  = (J[2][2]*x[4]*x[5]+J[0][1]*x[3]*x[5]-c4)/J[0][1]
+    #     x5d  = (c6-J[0][1]*x[4]*x[4]-J[0][1]*x[3]*x[3])/J[2][2]
 
-        return np.array([x0d,x1d,x2d,x3d,x4d,x5d])
+    #     return np.array([x0d,x1d,x2d,x3d,x4d,x5d])
 
-    obj1 = RK45(funvel,curr_time,np.array([u_vec[0],u_vec[1],u_vec[2],omega_vec[0],omega_vec[1],omega_vec[2]]),curr_time+delta_t)
-    obj1.step()
-    obj2 = obj1.dense_output()
-    ans_vel = obj2.__call__(curr_time+delta_t)
+    # obj1 = RK45(funvel,curr_time,np.array([u_vec[0],u_vec[1],u_vec[2],omega_vec[0],omega_vec[1],omega_vec[2]]),curr_time+delta_t)
+    # obj1.step()
+    # obj2 = obj1.dense_output()
+    # ans_vel = obj2.__call__(curr_time+delta_t)
 
     # computing lamda and r_n angular rate of Z axis of nonspinning frame
     ### Uncomment
@@ -260,8 +322,8 @@ while steps <= total_steps :
     
     # next time step
 
-    u_vec = ans_vel[:3]
-    omega_vec = ans_vel[3:]
+    u_vec = [x[0],x[1],x[2]]
+    omega_vec = [x[3],x[4],x[5]]
 
     Psi = ans_capangles[0]
     Theta = ans_capangles[1]
@@ -292,7 +354,28 @@ while steps <= total_steps :
     steps += 1
     curr_time += delta_t
 
- 
+    lCx_A += [Cx_A]
+    lCy_A += [Cy_A]
+    lCz_A += [Cz_A]
+    lCx_G += [Cx_G]
+    lCy_G += [Cy_G]
+    lCz_G += [Cz_G]
+    lCm_x_A += [Cm_x_A]
+    lCm_y_A += [Cm_y_A]
+    lCm_z_A += [Cm_z_A]
+
+    coefficients_dict = {
+        "Cx_A" : lCx_A,
+        "Cy_A" : lCy_A,
+        "Cz_A" : lCz_A,
+        "Cx_G" : lCx_A,
+        "Cy_G" : lCy_G,
+        "Cz_G" : lCz_G,
+        "Cm_x_A" : lCm_x_A,
+        "Cm_y_A" : lCm_y_A,
+        "Cm_z_A" : lCm_z_A
+
+    }
 
     if steps%1 == 0 :
         df_u_vec = pd.DataFrame(trajectory_u_vec, dtype=None, copy=False)
@@ -300,7 +383,9 @@ while steps <= total_steps :
         df_Phi_Theta_Psi = pd.DataFrame(trajectory_Phi_Theta_Psi, dtype=None, copy=False)
         df_phi_theta_psi = pd.DataFrame(trajectory_phi_theta_psi, dtype=None, copy=False)
         df_path = pd.DataFrame(trajectory_path, dtype=None, copy=False)
+        df_coefficients = pd.DataFrame(data=coefficients_dict)
 
+        df_coefficients.to_csv("aeroCoefficients.csv")
         df_u_vec.to_csv("linearVel.csv")
         df_omega_vec.to_csv("angularVel.csv")
         df_Phi_Theta_Psi.to_csv("eulerAnglesCap.csv")

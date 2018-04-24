@@ -43,9 +43,9 @@ def doAlpha(w_vec) :
     k_vec = []
     for i in w_vec :
         if i[0] < 0 :
-            k_vec += [0]
+            k_vec += [-1]
         else :
-            k_vec += [0]
+            k_vec += [1]
 
     for i in w_vec :
         if i[2]>=0 and i[0]>=0 :
