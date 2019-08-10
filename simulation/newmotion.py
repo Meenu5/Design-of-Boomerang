@@ -33,7 +33,7 @@ x_ac_1 = 0.0723
 x_ac_2 = 0.0723
 beta_1 = 0.
 beta_2 = 0.
-segments = 30
+segments = 50
 
 inertia_jframe = np.array([[1.9*10**-3, 0., 0.],[0,4.88*10**-6, 0.],[0.,0.,1.9*10**-3]])
 x_ac_vec = np.array([x_ac_1,x_ac_2])
@@ -42,7 +42,7 @@ theta_pitch_vec = np.array([theta_1, theta_2]) # theta_pitch of blades
 Lamda_vec = np.array([Lamda_1,Lamda_2]) # Lamda of blades
 beta_vec = np.array([0.,0.]) # beta of blades
 
-delta_t = 0.0001 # time step
+delta_t = 0.00001 # time step
 total_time = 0.01
 total_steps = total_time/delta_t
 curr_time = 0
@@ -109,7 +109,7 @@ while steps <= total_steps :
     w_vec_1 = kinematics.doRelativeAirVelBlade(v_vec_1,Tj1)
     w_vec_2 = kinematics.doRelativeAirVelBlade(v_vec_2,Tj2)
 
-   
+
     alpha_vec_1, k_vec_1 = kinematics.doAlpha(w_vec_1)
     alpha_vec_2, k_vec_2 = kinematics.doAlpha(w_vec_2)
 
@@ -135,7 +135,7 @@ while steps <= total_steps :
     #print("Cz_A",Cz_A) ##
 
     Cx_G = coefficients.doCx_G(phi, theta, psi, Phi0, Theta0, Psi0)
-    # print("Cx_g",Cx_G) # comment  
+    # print("Cx_g",Cx_G) # comment
     Cy_G = coefficients.doCy_G(phi, theta, psi, Phi0, Theta0, Psi0)
     # print("Cy_g",Cy_G) # comment
     Cz_G = coefficients.doCz_G(phi, theta, psi, Phi0, Theta0, Psi0)
@@ -200,8 +200,8 @@ while steps <= total_steps :
 
     # rk45
     def funvel(t,x) :
-        global J, c1,c2,c3,c4,c5,c6 
-        
+        global J, c1,c2,c3,c4,c5,c6
+
         x0d  = c1 - x[4]*x[2] + x[5]*x[1]
         x1d  = c2 - x[5]*x[0] + x[3]*x[2]
         x2d  = c3 - x[3]*x[1] + x[4]*x[0]
@@ -252,7 +252,7 @@ while steps <= total_steps :
     obj2 = obj1.dense_output()
     ans_angles = obj2.__call__(curr_time+delta_t)
 
-    
+
     # next time step
 
     u_vec = ans_vel[:3]
@@ -287,7 +287,7 @@ while steps <= total_steps :
     steps += 1
     curr_time += delta_t
 
- 
+
 
     if steps%1 == 0 :
         df_u_vec = pd.DataFrame(trajectory_u_vec, dtype=None, copy=False)
