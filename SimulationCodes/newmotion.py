@@ -88,11 +88,6 @@ J2 = np.matmul(transpose(Tj2),inertia_jframe)
 J = J1+J2
 
 
-# for i in range(3) :
-#     for j in range(3) :
-#         if J[i][j] < 10**-5 :
-#             J[i][j] = 0
-
 
 # initial velocity
 trajectory_u_vec.append(copy.copy(u_vec))
