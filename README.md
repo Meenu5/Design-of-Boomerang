@@ -19,14 +19,14 @@ The above script saves trajectory and relevant parameters as csv files
 
 
 ### References
-[Flight Dynamics of the Boomerang, Part 1: Fundamental Analysis](https://arc.aiaa.org/doi/abs/10.2514/1.11157)
+1. [Flight Dynamics of the Boomerang, Part 1: Fundamental Analysis](https://arc.aiaa.org/doi/abs/10.2514/1.11157)
 
-[Mathematics of Gyroscopic Precession](http://www.gyroscopes.org/math2.asp)
+2. [Mathematics of Gyroscopic Precession](http://www.gyroscopes.org/math2.asp)
 
-[John C. Vassberg, Boomerang Flight Dynamics, New Orleans, 2012](http://adl.stanford.edu/e298/E298_-_Seminar_in_Fluid_Mechanics_files/AIAA.2012-2650.AerodynamicsLecture2012.update.pdf)
+3. [John C. Vassberg, Boomerang Flight Dynamics, New Orleans, 2012](http://adl.stanford.edu/e298/E298_-_Seminar_in_Fluid_Mechanics_files/AIAA.2012-2650.AerodynamicsLecture2012.update.pdf)
 
-[Hugh Hunt, Boomerang Theory, Cambridge, 2001](http://www2.eng.cam.ac.uk/~hemh1/boomerangs.htm)
+4. [Hugh Hunt, Boomerang Theory, Cambridge, 2001](http://www2.eng.cam.ac.uk/~hemh1/boomerangs.htm)
 
-[Alberto Clarich*, Rosario Russo,Enrico Nobile, Carlo Poloni, Multi-Objective Optimization of a Boomerang Shape using modeFRONTIER and STAR-CCM+](https://mdx2.plm.automation.siemens.com/sites/default/files/Presentation/3_ESTECO_AC.pdf)
+5. [Alberto Clarich*, Rosario Russo,Enrico Nobile, Carlo Poloni, Multi-Objective Optimization of a Boomerang Shape using modeFRONTIER and STAR-CCM+](https://mdx2.plm.automation.siemens.com/sites/default/files/Presentation/3_ESTECO_AC.pdf)
 
 
